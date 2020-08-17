@@ -1,2 +1,4 @@
-# slap-jack
-local HTML slap jack game
+## Slap Jack
+#### project createed for 2017 APCSP Create Performance Task
+I used HTML, JavaScript, and CSS to create a SlapJack game. The purpose of the program is to incorporate rules of SlapJack and the manipulation of card decks in a web platform while retaining competitions between two players as if they were playing with real cards. The demo video, demonstrated the process and navigation of the game, where players press keys to simulate card-dealing actions. It demonstrates the features of the scoring system of the game, which is counted by the amount of cards each player presently hold, as well as identifying cards and the combination of these cards, triggering a system for reward and punishment. Also by showing the running of two sample matches, it depicts the different outcomes supported, that the game will either end in a draw or one player emerging victorious.
+
