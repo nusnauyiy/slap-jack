@@ -1,0 +1,336 @@
+
+<!DOC TYPE HTML>
+<html>
+<head>
+	<style>
+		body{
+			background-color: #BBCCFF;
+			font-family: Georgia;
+			text-align: center;
+			
+		}
+		h1{
+			text-align: left;
+			font-size: calc(10px + 0.3vw);
+		}
+		li {
+			padding-bottom: 1%;
+		}
+		
+		#heading {
+			font-size: calc(18px + 0.8vw);
+		}
+
+		input[type=button]
+				{
+				width: 25%;
+				background-color: #DDEEFF;
+				color: black;
+				padding: 10px 10px;
+				border: none;
+		}
+
+		input[type=button]:hover
+				{
+				box-shadow: 5px 5px 5px #aaaaaa;
+		}
+
+		input[type=button]:disabled
+				{
+				background-color: #dddde0;
+				box-shadow: 0px 0px 0px #aaaaaa;
+		}
+
+	</style>
+	<script>
+	var ALLCARDS = ["As","Ah","Ac","Ad","2s","2h","2c","2d","3s","3h","3c","3d","4s","4h","4c","4d","5s","5h","5c","5d","6s","6h","6c","6d","7s","7h","7c","7d","8s","8h","8c","8d","9s","9h","9c","9d","Ts","Th","Tc","Td","Js","Jh","Jc","Jd","Qs","Qh","Qc","Qd","Ks","Kh","Kc","Kd"]
+		//above are the file name of all card images, got from wikimedia commons (shown in video)
+	var player1cards = []
+		
+	var player2cards = []
+	
+	var cardPile = []
+	
+	var turn = 1;
+	
+	var player=0; //var specific for slapping
+	
+
+	function playGame()//initializing the game
+	{
+		
+		document.getElementById("finalMessage").innerHTML = "";
+		document.getElementById("start").disabled = true;
+		
+		shuffle(ALLCARDS);
+		
+		document.getElementById("gameArea").style.display = "inline";
+		
+		document.getElementById("master").focus();
+		
+		document.getElementById("middle").style.opacity = "0.04";
+		document.getElementById("middle").src = "back.png";
+		
+		player1cards = [];
+		player2cards = [];
+		cardPile = [];
+		
+		player1cards = ALLCARDS.splice(0, 26);
+		player2cards = ALLCARDS;
+		ALLCARDS = player1cards.concat(player2cards);
+		
+		document.getElementById("turnNumber").innerHTML= "The game will start as player one puts down a card."
+		
+		turn = 1;
+		
+		scoring();
+		
+	}
+		
+		
+		function shuffle(array) //randomize the order of cards, Fisher-Yates algorithm from stackoverflow by coolaj86
+		{
+			var currentIndex = array.length, temporaryValue, randomIndex;
+
+			  // While there remain elements to shuffle...
+			while (0 !== currentIndex) 
+			 {
+				// Pick a remaining element...
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex -= 1;
+
+				// And swap it with the current element.
+				temporaryValue = array[currentIndex];
+				array[currentIndex] = array[randomIndex];
+				array[randomIndex] = temporaryValue;
+			  }
+			return array;
+		}
+		
+		
+		function keydown(event) //actual action keys, textbox need to be focused, method inspired by W3Schools
+		{
+			document.getElementById("master").focus();
+			var x = event.keyCode;
+			var card;
+			
+			//This gigantic if statement is dedicated to the procedure of the game, where pressing ""z"" or "left arrow" equals putting down a card		
+			if(turn == 1 && x==90)//if it's player1's turn. z
+			{	
+				card = player1cards.splice(0,1);//remove the first element from the array (deck of cards)
+				cardPile.push(card);
+					
+				if(player2cards.length !== 0)///player's turn will start as soon as they have more than 0 cards
+				{
+					turn = 2;
+					document.getElementById("player2").style.opacity = 1;
+				}
+				document.getElementById("middle").src = card + ".png";
+			}
+			else if (turn == 2 && x==37)//left arrow
+			{
+				card = player2cards.splice(0,1); 
+				cardPile.push(card);
+					
+				if(player1cards.length !== 0)
+				{
+					turn = 1;
+					document.getElementById("player1").style.opacity = 1;
+				}
+				document.getElementById("middle").src = card + ".png";
+			}
+			
+			document.getElementById("middle").style.display = "inline";
+			document.getElementById("middle").style.opacity = 1;
+			document.getElementById("turnNumber").innerHTML = "It's Player " + turn + "'s turn!";
+			
+			refreshScore();
+			//alert(cardPile);
+			
+			if(turn !== 0)//This if statement response to the "slapping" of the game
+			{
+				if (x == 88) { //key "x"
+					alert("Player one slapped!");
+					player=1;
+					identify(player);
+				}
+				else if (x == 40) //key "down arrow"
+				{
+					alert("Player two slapped!");
+					player=2;
+					identify(player);
+				}
+			}
+			
+			scoring();
+		}
+		
+		
+		function identify(player) ////sandwich, double, etc; here moving the position of the cards
+		{
+			var card;
+			
+			var x = cardPile[cardPile.length-1].toString(); //the last card added to the pile
+			var y;
+			var z; 
+
+			
+			x = x.charAt(0); //regardless of the suit... only the face value matters
+			
+			if(cardPile.length == 2)//if the first card is a jack, var y and z will give an error
+			{
+				y = cardPile[cardPile.length-2].toString();
+				y = y.charAt(0);
+				
+			}
+			else if(cardPile.length >= 3)
+			{
+				y = cardPile[cardPile.length-2].toString(); 
+				y = y.charAt(0);
+				
+				z = cardPile[cardPile.length-3].toString(); 
+				z = z.charAt(0);
+			}
+
+				if(x == z)//1st == 3rd
+				{
+					alert("Sandwich!");
+				}
+				else if(x == y)//1st == 2nd
+				{
+					alert("Double!");
+				}
+				else if(x == "J")//jack
+				{
+					alert("Jack!");
+				}
+				else //punishment for a false slap
+				{
+					alert("a false slap!");
+					
+					if(player == 1 && player1cards.length > 0)
+					{
+						card = player1cards.splice(0,1); 
+						player2cards.push(card);
+						turn = 1;
+					}
+					else if(player == 2 && player2cards.length > 0)
+					{
+						card = player2cards.splice(0,1); 
+						player1cards.push(card);
+						
+						turn = 2;
+					}
+					
+					document.getElementById("turnNumber").innerHTML = "Player "+ player+ " is taking a penalty, the pile of cards has been reshuffled. It's player "+player+"'s turn."
+					
+					shuffle(cardPile); //shuffle the central card pile
+					
+					refreshScore();
+					return;
+				}
+		
+				document.getElementById("middle").style.display = "none";
+				
+				if(player ==1)
+				{
+					player1cards = player1cards.concat(cardPile); //append cardPile
+				}
+				else if(player ==2)
+				{
+					player2cards = player2cards.concat(cardPile);
+				}
+				cardPile = [];
+				
+				refreshScore()
+		}	
+		
+		
+		function refreshScore()//constantly update the display of scores
+		{
+			document.getElementById("p1").innerHTML = "Player 1's score is "+ player1cards.length;
+			document.getElementById("p2").innerHTML = "Player 2's score is "+ player2cards.length;
+			
+			if(player1cards.length == 0)
+			{
+				document.getElementById("player1").style.opacity = "0.1"
+			}
+			else
+			{
+				document.getElementById("player1").style.opacity = "1"
+			}
+			
+			if(player2cards.length == 0)
+			{
+				document.getElementById("player2").style.opacity = "0.1"
+			}
+			else
+			{
+				document.getElementById("player2").style.opacity = "1"
+			}
+		}
+			
+		function scoring()//function decided whether the game should end
+		{			
+			var message;
+			refreshScore();
+			
+			if (player1cards.length == 52)
+			{
+				message = "Player 1 has won!!"	
+
+			}
+			else if(player2cards.length == 52)
+			{					
+				message = "Player 2 has won!!"	
+			}
+			else if(player1cards.length == 0 && player2cards.length == 0)
+			{
+				message = "It's a draw!"	
+			}
+			else
+			{return;}
+			//use a timing method so that the players could see what is the last card put down
+			setTimeout(function(){
+					document.getElementById("gameArea").style.display = "none";
+					document.getElementById("start").disabled = false;
+					document.getElementById("finalMessage").innerHTML = message;
+				},500)
+		}
+		
+
+		
+	</script>
+</head>
+
+<body>
+	<div id="heading">Card Game: Slap Jack<br>
+	<h1><br> This game is designed for two players, grab a friend or a family member!<br><br>
+		<ul><li> Two players will take turn putting down a card. When a Jack is played, or two same card are played consecutively (double) or only separated by one card (sandwich), the first player to slap the card wins the entire pile.</li>
+		<li> The player on the left would be player one, who will press "z" to put down a card and press "x" to slap the center card pile.</li>
+		<li> The player on the right, or player two, can put down a card by pressing the left arrow and slap with the down arrow.</li>
+		<li> Navigate through the alerts popped up in your game play by simply pressing the "space bar" or "enter" to dismiss them.</li>
+		<li> If a false slap is detected, the player who initiated the slap, if having one or more cards, would give up a card to the other player as a penalty.</li>
+		<li> The first player to obtain all 52 cards (a score of 52) will be the winner.</li></ul></h1>
+	<input type=button id="start" value="Start Playing!" onclick="playGame()"></div><hr><hr>
+	
+	<div id="gameArea" style="display:none;">
+	<input type="text" id="master" style="opacity:0.01" onkeydown="keydown(event)" onblur="(function(){document.getElementById('master').focus()}).call(this)"><!-- therefore the program can always detect key press!! --> <br>
+	<div style="font-size:1.5vw;position:absolute;top:85%;left:38%;right:38%" id="turnNumber"> </div><br>
+	
+	<image src = "back.png" id="middle" width="12%" style="opacity:0.04; position:absolute; left:44%; top:50%"> <!-- image is from pinterest-->
+	
+	<image src = "back.png" id="player1" style="position:absolute;left:10%;top:60%" width="12%">
+	
+	<image src = "back.png" id="player2" style="position:absolute;right:10%;top:60%" width="12%">
+		
+		<div id="p1" style="font-size:1.5vw;position:absolute;left:10%;top:55%">Player one's score (number of cards) will be displayed here</div>
+		<div id="p2" style="font-size:1.5vw;position:absolute;right:10%;top:55%">Player two's score (number of cards) will be displayed here</div>
+	</div>
+	<div id="finalMessage"></div>
+	
+</body>
+</html>
+
+
+
